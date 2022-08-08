@@ -1,34 +1,42 @@
-import fetch from "node-fetch";
+import fetch from 'node-fetch';
 import { createObjectCsvWriter } from 'csv-writer';
 
-var fs = import('fs')
-
-const URL = "https://randomuser.me/api/";
-
-//const createCsvWriter = import('csv-writer').createCsvWriter;
+const URL = "http://localhost:5000/v1/accounts/?";
+//const URL = "https://api.tzkt.io/v1/accounts?";
 
 const csvWriter = createObjectCsvWriter({
-    path: './forecast.csv',
+    path: './accounts.csv',
     headerIdDelimiter: '.',
     header: [
-        {id: 'gender', title: 'Gender'},
-        {id: 'email', title: 'Email'},
-        {id: 'name.first', title: 'First'}
+        {id: 'id', title: 'Id'},
+        {id: 'address', title: 'address'},
+        {id: 'type', title: 'type'},
+        {id: 'alias', title: 'alias'},
+        {id: 'revealed', title: 'revealed'},
+        {id: 'balance', title: 'balance'},
+        {id: 'counter', title: 'counter'},
+        {id: 'numContracts', title: 'numContracts'},
+        {id: 'activeTokensCount', title: 'activeTokensCount'},
+        {id: 'numTransactions', title: 'numTransactions'},
+        {id: 'firstActivityTime', title: 'firstActivityTime'},
+        {id: 'lastActivityTime', title: 'lastActivityTime'}
     ]
-    //header: ['title', 'first', 'last'].map((item)=> ({ id: item, title: item}))
 })
 
 async function getRandomUserData() {
-    const response = await fetch(URL);
+    const response = await fetch(URL + new URLSearchParams({
+        limit: '50'
+    }).toString()
+    );
     const data = await response.json();
-    console.log(data.results[0]);
+    console.log(data[0]);
 
     // Fetches the head of the object and find the length of the object
-    const propOwn = Object.getOwnPropertyNames(data.results[0]);
-    console.log("This is the length of the json file :"+propOwn.length);
+    //const propOwn = Object.getOwnPropertyNames(data.results[0]);
+    //console.log("This is the length of the json file :"+propOwn.length);
 
     try {
-        await csvWriter.writeRecords(data.results);
+        await csvWriter.writeRecords(data);
     }
     catch(error){
         console.log(error);
