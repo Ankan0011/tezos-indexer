@@ -45,7 +45,7 @@ async function getAccounts() {
     //console.log(data[0]);
 
     // Fetches the head of the object and find the length of the object
-    //const propOwn = Object.getOwnPropertyNames(data);
+    const propOwn = Object.getOwnPropertyNames(data);
     //console.log("This is the length of the json file :"+propOwn.length);
 
     for (let i = 0; i < propOwn.length-1; i++) {
