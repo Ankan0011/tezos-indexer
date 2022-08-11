@@ -1,11 +1,12 @@
 import fetch from 'node-fetch';
 import { createObjectCsvWriter } from 'csv-writer';
 
-const URL = "http://localhost:5000/v1/accounts/?";
-//const URL = "https://api.tzkt.io/v1/accounts?";
+//const URL = "http://localhost:5000/v1/accounts/?";
+const URL = "https://api.tzkt.io/v1/accounts?";
+const records = 2;
 
 const csvWriter = createObjectCsvWriter({
-    path: './accounts.csv',
+    path: './data/accounts.csv',
     headerIdDelimiter: '.',
     header: [
         {id: 'id', title: 'Id'},
@@ -23,24 +24,23 @@ const csvWriter = createObjectCsvWriter({
     ]
 })
 
-async function getRandomUserData() {
-    const response = await fetch(URL + new URLSearchParams({
-        limit: '50'
-    }).toString()
-    );
-    const data = await response.json();
-    console.log(data[0]);
-
-    // Fetches the head of the object and find the length of the object
-    //const propOwn = Object.getOwnPropertyNames(data.results[0]);
-    //console.log("This is the length of the json file :"+propOwn.length);
-
+function csvFileWriter(data){
     try {
-        await csvWriter.writeRecords(data);
+        csvWriter.writeRecords(data);
     }
     catch(error){
         console.log(error);
     }
+}
+
+async function getRandomUserData() {
+    const response = await fetch(URL + new URLSearchParams({
+        limit: records
+    }).toString()
+    );
+    const data = await response.json();
+    //console.log(data[0]);
+    csvFileWriter(data);
 };
 
 getRandomUserData();
