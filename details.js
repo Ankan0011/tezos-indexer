@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { createObjectCsvWriter } from 'csv-writer';
+import {csvFileWriter} from './resources.js';
 
 const URL = "https://api.tzkt.io/v1/accounts?";
 const URL2= "https://api.tzkt.io/v1/accounts/{address}/operations";
@@ -19,21 +20,12 @@ const csvWriter = createObjectCsvWriter({
     ]
 })
 
-function csvFileWriter(data){
-    try {
-        csvWriter.writeRecords(data);
-    }
-    catch(error){
-        console.log(error);
-    }
-}
-
 async function getAccountDetails(address) {
     console.log(address);
     const response = await fetch(URL2.replace("{address}", address));
     const data = await response.json();
     console.log(data[0]);
-    await csvFileWriter(data);
+    await csvFileWriter(data,csvWriter);
 }
 
 async function getAccounts() {

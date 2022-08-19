@@ -3,36 +3,35 @@ import { createObjectCsvWriter } from 'csv-writer';
 import {csvFileWriter} from './resources.js';
 
 //const URL = "http://localhost:5000/v1/accounts/?";
-const URL = "https://api.tzkt.io/v1/accounts?";
+const URL = "https://api.tzkt.io/v1/delegates?";
 const records = 5;
 
 const csvWriter = createObjectCsvWriter({
-    path: './data/accounts.csv',
+    path: './data/delegates.csv',
     headerIdDelimiter: '.',
     header: [
         {id: 'id', title: 'Id'},
         {id: 'address', title: 'address'},
         {id: 'type', title: 'type'},
-        {id: 'alias', title: 'alias'},
-        {id: 'revealed', title: 'revealed'},
+        {id: 'active', title: 'active'},
         {id: 'balance', title: 'balance'},
+        {id: 'frozenDeposit', title: 'frozen_deposit'},
         {id: 'counter', title: 'counter'},
-        {id: 'numContracts', title: 'numContracts'},
+        {id: 'activationLevel', title: 'activationLevel'},
         {id: 'activeTokensCount', title: 'activeTokensCount'},
-        {id: 'numTransactions', title: 'numTransactions'},
+        {id: 'stakingBalance', title: 'stakingBalance'},
         {id: 'firstActivityTime', title: 'firstActivityTime'},
         {id: 'lastActivityTime', title: 'lastActivityTime'}
     ]
 })
 
-async function getRandomUserData() {
+async function getDelegates() {
     const response = await fetch(URL + new URLSearchParams({
         limit: records
     }).toString());
     
     const data = await response.json();
-    //console.log(data[0]);
     csvFileWriter(data,csvWriter);
 };
 
-getRandomUserData();
+getDelegates();
