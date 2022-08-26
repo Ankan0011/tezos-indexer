@@ -4,10 +4,10 @@ import {csvFileWriter} from './resources.js';
 
 const URL = "https://api.tzkt.io/v1/accounts?";
 const URL2= "https://api.tzkt.io/v1/accounts/{address}/operations";
-const records = 2;
+const records = 2000;
 
 const csvWriter = createObjectCsvWriter({
-    path: './data/accountOperations.csv',
+    path: './data/test/accountOperations.csv',
     headerIdDelimiter: '.',
     header: [
         {id: 'id', title: 'Id'},
@@ -20,12 +20,32 @@ const csvWriter = createObjectCsvWriter({
     ]
 })
 
+function handleErrors(response) {
+    if (!response.ok) {
+        throw Error(response.statusText);
+    }
+    return response;
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function getAccountDetails(address) {
     console.log(address);
-    const response = await fetch(URL2.replace("{address}", address));
-    const data = await response.json();
-    console.log(data[0]);
-    await csvFileWriter(data,csvWriter);
+    const response =  fetch(URL2.replace("{address}", address))
+    //.then(handleErrors)
+    .then(res => {
+        if (!res.ok) {
+            throw new Error(); // Will take you to the `catch` below
+        }
+        return res.json();
+    })
+    .then( data => { 
+        //console.log(data[0]); 
+        csvFileWriter(data,csvWriter);
+    }).catch( error => { 
+        sleep(2000);
+        console.log(error);}
+    );
 }
 
 async function getAccounts() {

@@ -4,7 +4,7 @@ import {csvFileWriter} from './resources.js';
 
 //const URL = "http://localhost:5000/v1/accounts/?";
 const URL = "https://api.tzkt.io/v1/accounts?";
-const records = 5;
+const records = 10;
 
 const csvWriter = createObjectCsvWriter({
     path: './data/accounts.csv',
