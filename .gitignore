@@ -1,2 +1,5 @@
 .idea
 spark-code.iml
+/util.egg-info
+/dist
+/build

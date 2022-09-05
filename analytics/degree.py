@@ -1,29 +1,45 @@
-from pyspark.sql import SparkSession
+
+import sys
+import os
 from delta import *
 from pyspark.sql.functions import *
+from pyspark.sql.types import StringType
+from datetime import datetime
 
-builder = SparkSession.builder.appName("Degree") \
-    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
-    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
-    .config("spark.jars", "//mnt/indexer-build/jar/postgresql-42.5.0.jar") \
-    .config("spark.executor.memory", "12g") \
-    .config("spark.executor.cores", "3") \
-    .config('spark.cores.max', '6') \
-    .config('spark.driver.memory','4g') \
-    .config('spark.worker.cleanup.enabled', 'true') \
-    .config('spark.worker.cleanup.interval', '60') \
-    .config('spark.shuffle.service.db.enabled', 'true') \
-    .config('spark.worker.cleanup.appDataTtl', '60') \
-    .config('spark.sql.debug.maxToStringFields', 100)
+# sys.path.append('/mnt/indexer-build/tezos-indexer/util')
 
-spark = configure_spark_with_delta_pip(builder).getOrCreate()
+from util.helper import initalizeSpark,loadFile,dateParser
 
-df = spark.read.option("header", False) \
-    .option("inferSchema", "true") \
-    .option("ignoreLeadingWhiteSpace", "true") \
-    .option("ignoreTrailingWhiteSpace", "true") \
-    .csv("/mnt/indexer-build/migrated_data/raw/TransactionOps/*.csv") 
 
-path="/mnt/indexer-build/migrated_data/raw/TransactionOps"
+def weekExtractor(Timestamp):
+    try:
+        return dateParser(Timestamp).isocalendar()[1]
+    except ValueError as e:
+        print('ValueError Raised:', e)
+    return "NULL"
 
-df.show(5)
+def yearExtractor(Timestamp):
+    try:
+        return dateParser(Timestamp).year
+    except ValueError as e:
+        print('ValueError Raised:', e)
+    return "NULL"
+
+udf_weekExtractor = udf(lambda x:weekExtractor(x), StringType() )
+udf_yearExtractor = udf(lambda x:yearExtractor(x), StringType() )
+
+test_txs_path="/mnt/indexer-build/migrated_data/raw/TransactionOps"
+test_acc_path="/mnt/indexer-build/migrated_data/raw/rest_Accounts"
+spark = initalizeSpark("Degree")
+
+df_txs = loadFile(spark, test_txs_path, True )
+df_Acc = loadFile(spark, test_acc_path, True )
+
+#Dataframe containing all the Users accounts details
+df_users=df_Acc.filter(df_Acc['Type'] == 0).alias('df_users')
+
+#Joined the transaction table to extract all the 
+df_txs_user =df_txs.alias('df_txs').join(df_users, df_txs.SenderId == df_users.Id, "inner").select('df_txs.*')
+df_final = df_txs_user.withColumn("Week_no",udf_weekExtractor(col("Timestamp"))).withColumn("Year_no",udf_yearExtractor(col("Timestamp")))
+#df_new.show(5)
+#df_final.write.option("header", True).mode('overwrite').csv("/mnt/indexer-build/migrated_data/stage/user_txs")
