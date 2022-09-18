@@ -23,6 +23,24 @@ def initalizeSpark(AppName):
         spark = configure_spark_with_delta_pip(builder).getOrCreate()
         return spark
 
+#Graph Spark packages
+def initalizeGraphSpark(AppName):
+        print("Importing the Graph Initialization")
+        spark = SparkSession.builder.appName(AppName) \
+                .config("spark.jars", "//mnt/indexer-build/jar/postgresql-42.5.0.jar") \
+                .config("spark.driver.extraClassPath","//mnt/indexer-build/jar/graphframes_graphframes-0.8.1-spark3.0-s_2.12.jar") \
+                .config("spark.executor.memory", "12g") \
+                .config("spark.executor.cores", "3") \
+                .config('spark.cores.max', '6') \
+                .config('spark.driver.memory','4g') \
+                .config('spark.worker.cleanup.enabled', 'true') \
+                .config('spark.worker.cleanup.interval', '60') \
+                .config('spark.shuffle.service.db.enabled', 'true') \
+                .config('spark.worker.cleanup.appDataTtl', '60') \
+                .config('spark.sql.debug.maxToStringFields', 100).getOrCreate()
+        spark.sparkContext.setCheckpointDir(dirName="/mnt/indexer-build/migrated_data/temp")
+        return spark
+
 def loadFile(spark, path, header):
         print("Loading the csv files")
         df = spark.read.option("header", header).option("inferSchema", "true") \

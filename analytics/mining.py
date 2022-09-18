@@ -1,4 +1,4 @@
-from util.helper import initalizeSpark,loadFile
+from util.helper import initalizeSpark
 import math
 from pyspark.sql.functions import *
 from pyspark.sql.types import StringType
