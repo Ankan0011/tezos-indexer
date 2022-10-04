@@ -4,7 +4,6 @@ import networkx as nx
 import numpy as np
 from util.helper import initalizeGraphSpark,loadFile
 from pyspark.sql.functions import *
-import gc
 
 test_txs_path="/mnt/indexer-build/migrated_data/stage/SSC"
 destination_path="/mnt/indexer-build/migrated_data/curated/core_periphery"
