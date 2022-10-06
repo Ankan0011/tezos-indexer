@@ -54,8 +54,6 @@ def initalizeGraphSpark(AppName):
 
         return spark
 
-
-
 def loadFile(spark, path, header):
         print("Loading the csv files")
         df = spark.read.option("header", header).option("inferSchema", "true") \
