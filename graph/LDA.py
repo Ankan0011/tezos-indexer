@@ -26,7 +26,7 @@ listDesDir =[x[0].split("/")[-1] for x in os.walk(destination_path)]
 listSrcDir  = [x[0] for x in os.walk(test_txs_path)]
 
 for x in listSrcDir:
-    if x.find("relationship=20")  != -1:
+    if x.find("relationship=2022")  != -1:
         dirname = x.split("/")[-1]
         if not (dirname in listDesDir):
             print("Not Found it :"+dirname)
