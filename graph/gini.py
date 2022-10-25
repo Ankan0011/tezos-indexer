@@ -10,7 +10,8 @@ from collections import Counter
 # Paths
 test_txs_path="/mnt/indexer-build/migrated_data/stage/all_txs"
 # accounts_path="/mnt/indexer-build/migrated_data/raw/rest_Accounts"
-destination_path="/mnt/indexer-build/migrated_data/curated/gini"
+# destination_path="/mnt/indexer-build/migrated_data/curated/gini"
+destination_path="/mnt/indexer-build/migrated_data/stage/miners_dist_node/"
 
 # Variables
 spark = initalizeGraphSpark("Gini")
@@ -29,7 +30,7 @@ listDesDir =[x[0].split("/")[-1] for x in os.walk(destination_path)]
 listSrcDir  = [x[0] for x in os.walk(test_txs_path)]
 
 for x in listSrcDir:
-    if x.find("date=2022")  != -1:
+    if x.find("date=20")  != -1:
         dirname = x.split("/")[-1]
         if not (dirname in listDesDir):
             print("Not Found it :"+dirname.split("=")[-1])
@@ -50,10 +51,10 @@ for x in listSrcDir:
             df_pandas['node'] = df_pandas.index
             df_pandas['year_week'] = str(dirname.split("=")[-1])
             # Write out the df_pandas dataframe for all the node balance
-            # print(df_pandas)
-            Person=Row( "year_week","gini_coff")
-            data = [ Person( str(dirname.split("=")[-1]), str(gini(df_pandas.iloc[:, 0].to_numpy()))) ]
-            next = spark.createDataFrame(data)
+            next = spark.createDataFrame(df_pandas).withColumnRenamed("0","balance")
+                # Person=Row( "year_week","gini_coff")
+                # data = [ Person( str(dirname.split("=")[-1]), str(gini(df_pandas.iloc[:, 0].to_numpy()))) ]
+                # next = spark.createDataFrame(data)
             # next.show()
             next.write.option("header", True).mode('overwrite').csv(destination_path+"/"+dirname)
 spark.stop()
